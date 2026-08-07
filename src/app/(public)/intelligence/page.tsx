@@ -68,7 +68,7 @@ export default async function NewsHomePage() {
   if (!featured) {
     return (
       <main className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center px-6">
-        <h1 className="text-2xl font-bold text-ink">No articles yet</h1>
+        <h1 className="text-2xl font-bold text-white">No articles yet</h1>
         <p className="text-gray-body max-w-md">
           Run <code className="font-mono bg-cream-dim px-1 rounded">npm run scrape:manual</code> to
           pull real articles from live sources, then reload this page.
@@ -93,7 +93,7 @@ export default async function NewsHomePage() {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_340px]">
           {/* ── Article grid ─────────────────────────────────────────── */}
           <div>
-            <h2 className="mb-6 text-display-sm text-ink">Latest News</h2>
+            <h2 className="mb-6 text-display-sm text-white">Latest News</h2>
             {rest.length > 0 ? (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 {rest.map((article) => (
@@ -101,7 +101,7 @@ export default async function NewsHomePage() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-body">Only one article so far — run the scraper again to populate more.</p>
+              <p className="text-gray-body">Only one article so far. Run the scraper again to populate more.</p>
             )}
           </div>
 

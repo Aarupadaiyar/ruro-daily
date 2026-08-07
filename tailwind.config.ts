@@ -9,24 +9,24 @@ export default {
     extend: {
       colors: {
         cream: {
-          DEFAULT: "#FAFAF0", // page background
-          dim: "#F3F3E7",     // secondary surface (e.g. sidebar wells)
+          DEFAULT: "#0D0B28", // page background (dark navy, not cream anymore)
+          dim: "#14123A",     // secondary surface (e.g. sidebar wells)
         },
         ink: {
-          DEFAULT: "#0B0B0B", // near-black text / black sections
-          soft: "#1A1A1A",
+          DEFAULT: "#14123A", // elevated dark surfaces / dark-band sections
+          soft: "#1f1b4d",
         },
         lime: {
-          DEFAULT: "#C8FF2C", // primary accent
-          dim: "#DFF8A0",     // hover/tint state
+          DEFAULT: "#4C56E8", // primary accent (indigo, matches trafy.ai)
+          dim: "#6C74EF",     // hover/tint state
         },
         gray: {
-          body: "#6B6B63",    // muted body copy on cream
-          bodyDark: "#A3A395" // muted body copy on ink
+          body: "rgba(255,255,255,0.65)",    // muted body copy on cream (now dark) bg
+          bodyDark: "rgba(255,255,255,0.55)" // muted body copy on ink sections
         },
         border: {
-          DEFAULT: "#E4E4D8", // hairline borders on cream
-          dark: "#2A2A24",    // hairline borders on ink
+          DEFAULT: "rgba(255,255,255,0.12)", // hairline borders on cream (now dark) bg
+          dark: "rgba(255,255,255,0.1)",     // hairline borders on ink sections
         },
       },
       fontFamily: {

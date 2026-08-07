@@ -1,6 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Newsletter } from "@/components/blog/Newsletter";
 import { Github, Linkedin } from "lucide-react";
+
+// Guards against an empty-string env var too (`??` alone would not fall
+// back on ""), which previously could leave this link pointing at nothing.
+const MAIN_SITE = process.env.NEXT_PUBLIC_MAIN_SITE_URL || "https://trafy.ai";
 
 const COLUMNS = [
   { 
@@ -33,20 +38,26 @@ const COLUMNS = [
 export function Footer() {
   return (
     <footer>
-      <div className="bg-lime px-6 py-20 text-center">
-        <h2 className="mx-auto max-w-2xl text-display-sm text-ink">Stay ahead of the AI curve.</h2>
-        <p className="mx-auto mt-3 max-w-md text-ink/70">
-          One email a week: the model releases, funding rounds, and research that actually matter.
-        </p>
-        <div className="mx-auto mt-8 max-w-md">
-          <Newsletter variant="on-lime" source="footer" />
+      <div className="relative overflow-hidden bg-cream px-6 py-20 text-center">
+        <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-lime/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full bg-pink-500/10 blur-3xl" />
+        <div className="relative">
+          <h2 className="mx-auto max-w-2xl text-display-sm text-white">Stay ahead of the AI curve.</h2>
+          <p className="mx-auto mt-3 max-w-md text-white/65">
+            One email a week: the model releases, funding rounds, and research that actually matter.
+          </p>
+          <div className="mx-auto mt-8 max-w-md">
+            <Newsletter variant="on-lime" source="footer" />
+          </div>
         </div>
       </div>
 
       <div className="bg-ink px-6 py-16 text-white lg:px-10">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-10 md:grid-cols-4">
           <div>
-            <span className="inline-block rounded-pill bg-lime px-4 py-1.5 font-bold text-ink">Trafy</span>
+            <a href={MAIN_SITE} className="inline-flex">
+              <Image src="/trafy-logo-light.svg" alt="Trafy" width={80} height={49} className="h-8 w-auto" />
+            </a>
             <p className="mt-4 max-w-xs text-sm text-gray-bodyDark">
               Work Tech connecting global AI talent with the world&apos;s top AI companies.
             </p>

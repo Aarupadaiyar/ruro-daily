@@ -57,7 +57,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-14 lg:px-10">
-      <h1 className="text-display-sm text-ink">{meta.name}</h1>
+      <h1 className="text-display-sm text-white">{meta.name}</h1>
       <p className="mt-2 text-gray-body">Everything Trafy Intelligence has tracked in {meta.name}.</p>
 
       <div className="my-8">
@@ -65,7 +65,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
       </div>
 
       {articles.length === 0 ? (
-        <p className="text-gray-body">No articles in this category yet — check back after the next scrape run.</p>
+        <p className="text-gray-body">No articles in this category yet. Check back after the next scrape run.</p>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {articles.map((article) => (

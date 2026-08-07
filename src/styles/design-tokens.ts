@@ -2,14 +2,14 @@
 // can't reach, like the HTML email digest template.
 export const tokens = {
   color: {
-    cream: "#FAFAF0",
-    creamDim: "#F3F3E7",
-    ink: "#0B0B0B",
-    inkSoft: "#1A1A1A",
-    lime: "#C8FF2C",
-    limeDim: "#DFF8A0",
-    grayBody: "#6B6B63",
-    border: "#E4E4D8",
+    cream: "#0D0B28",
+    creamDim: "#14123A",
+    ink: "#14123A",
+    inkSoft: "#1f1b4d",
+    lime: "#4C56E8",
+    limeDim: "#6C74EF",
+    grayBody: "rgba(255,255,255,0.65)",
+    border: "rgba(255,255,255,0.12)",
   },
   radius: {
     card: "22px",

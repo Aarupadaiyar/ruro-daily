@@ -11,7 +11,7 @@ export function Hero({ article }: { article: ArticleCardData }) {
       <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
         <div>
           <Badge variant="eyebrow">● Featured today</Badge>
-          <h1 className="mt-6 text-display-lg text-ink">
+          <h1 className="mt-6 text-display-lg text-white">
             {article.title}
           </h1>
           <p className="mt-5 max-w-lg text-lg text-gray-body">{article.summary}</p>

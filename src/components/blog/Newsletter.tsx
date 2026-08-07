@@ -39,7 +39,7 @@ export function Newsletter({
           placeholder="you@company.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-pill border border-ink/20 bg-cream px-4 py-3 text-sm text-ink placeholder:text-ink/50 outline-none"
+          className="w-full rounded-pill bg-white px-4 py-3 text-sm text-ink placeholder:text-ink/40 outline-none"
         />
         <Button type="submit" variant="secondary" disabled={status === "loading"}>
           {status === "done" ? "Subscribed ✓" : "Subscribe"}
@@ -49,9 +49,9 @@ export function Newsletter({
   }
 
   return (
-    <div className="rounded-card border border-border bg-white p-6">
+    <div className="rounded-card border border-border bg-white/5 p-6">
       <p className="text-xs font-semibold uppercase tracking-wide text-gray-body">Newsletter</p>
-      <h3 className="mt-2 text-lg font-bold text-ink">Weekly AI briefing</h3>
+      <h3 className="mt-2 text-lg font-bold text-white">Weekly AI briefing</h3>
       <p className="mt-1 text-sm text-gray-body">The stories that mattered, in your inbox every Friday.</p>
       <form onSubmit={handleSubmit} className={cn("mt-4 flex flex-col gap-2")}>
         <Input
@@ -64,7 +64,7 @@ export function Newsletter({
         <Button type="submit" variant="primary" disabled={status === "loading"}>
           {status === "done" ? "Subscribed ✓" : "Subscribe"}
         </Button>
-        {status === "error" && <p className="text-xs text-red-600">Something went wrong — try again.</p>}
+        {status === "error" && <p className="text-xs text-red-400">Something went wrong. Try again.</p>}
       </form>
     </div>
   );

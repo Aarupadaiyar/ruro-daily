@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!article) return {};
 
   return {
-    title: `${article.title} — Trafy Intelligence`,
+    title: `${article.title}: Trafy Intelligence`,
     description: article.summary,
     openGraph: {
       title: article.title,
@@ -114,17 +114,17 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <header className="border-b border-border bg-dot-grid px-6 py-14 lg:px-10">
         <div className="mx-auto max-w-3xl">
           <Badge variant="lime">{article.category.name}</Badge>
-          <h1 className="mt-5 text-display-md text-ink">{article.title}</h1>
+          <h1 className="mt-5 text-display-md text-white">{article.title}</h1>
           <p className="mt-4 text-lg text-gray-body">{article.summary}</p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-gray-body">
-            <span className="font-medium text-ink">{article.author?.name ?? article.source.name}</span>
+            <span className="font-medium text-white">{article.author?.name ?? article.source.name}</span>
             <span>·</span>
             <span>{formatDate(article.publishedAt ?? article.createdAt)}</span>
             <span>·</span>
             <span>{article.readingTimeMins} min read</span>
             <span>·</span>
-            <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="hover:text-ink font-medium">Original source ↗</a>
+            <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white font-medium">Original source ↗</a>
           </div>
         </div>
       </header>
@@ -145,7 +145,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       {related.length > 0 && (
         <section className="border-t border-border bg-cream-dim px-6 py-14 lg:px-10">
           <div className="mx-auto max-w-6xl">
-            <h2 className="mb-6 text-display-sm text-ink">Related</h2>
+            <h2 className="mb-6 text-display-sm text-white">Related</h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
               {related.map((r) => (
                 <ArticleCard key={r.id} article={r} />
@@ -156,7 +156,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       )}
 
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-10 text-sm lg:px-10">
-        <Link href="/intelligence" className="text-gray-body hover:text-ink">← Back to all news</Link>
+        <Link href="/intelligence" className="text-gray-body hover:text-white">← Back to all news</Link>
       </nav>
     </main>
   );

@@ -7,9 +7,9 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 
 export function Badge({ className, variant = "outline", ...props }: BadgeProps) {
   const styles = {
-    eyebrow: "border border-border bg-white/60 text-ink",
-    lime: "bg-lime text-ink",
-    outline: "border border-border bg-white text-gray-body",
+    eyebrow: "border border-border bg-white/5 text-white",
+    lime: "bg-lime text-white",
+    outline: "border border-black/10 bg-white text-ink/60",
   }[variant];
 
   return (

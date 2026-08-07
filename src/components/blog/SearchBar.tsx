@@ -32,27 +32,27 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
   return (
     <div className="relative">
       <div className={cn("flex items-center gap-2 rounded-pill border border-border bg-white px-4", compact ? "py-2" : "py-3")}>
-        <Search size={16} className="text-gray-body" />
+        <Search size={16} className="text-ink/40" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           placeholder="Search articles, tags, companies…"
-          className="w-full bg-transparent text-sm outline-none placeholder:text-gray-body"
+          className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink/40"
         />
       </div>
 
       {open && results.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-96 overflow-y-auto rounded-card border border-border bg-white shadow-soft-lg">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-96 overflow-y-auto rounded-card border border-black/10 bg-white shadow-soft-lg">
           {results.map((r) => (
             <button
               key={r.id}
               onMouseDown={() => router.push(`/intelligence/news/${r.slug}`)}
-              className="block w-full border-b border-border px-4 py-3 text-left last:border-none hover:bg-cream-dim"
+              className="block w-full border-b border-black/10 px-4 py-3 text-left last:border-none hover:bg-black/5"
             >
               <p className="text-sm font-medium text-ink">{r.title}</p>
-              <p className="mt-0.5 text-xs text-gray-body">{r.category.name} · {r.source.name}</p>
+              <p className="mt-0.5 text-xs text-ink/50">{r.category.name} · {r.source.name}</p>
             </button>
           ))}
         </div>

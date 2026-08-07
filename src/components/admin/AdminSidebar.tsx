@@ -20,7 +20,7 @@ export function AdminSidebar() {
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col justify-between border-r border-border-dark bg-ink p-6 text-white">
       <div>
-        <span className="inline-block rounded-pill bg-lime px-4 py-1.5 font-bold text-ink">Trafy</span>
+        <span className="inline-block rounded-pill bg-lime px-4 py-1.5 font-bold text-white">Trafy</span>
         <p className="mt-1 text-xs uppercase tracking-wide text-gray-bodyDark">Intelligence Admin</p>
 
         <nav className="mt-8 space-y-1">
@@ -32,7 +32,7 @@ export function AdminSidebar() {
                 href={href}
                 className={cn(
                   "flex items-center gap-3 rounded-pill px-4 py-2.5 text-sm font-medium",
-                  active ? "bg-lime text-ink" : "text-gray-bodyDark hover:bg-ink-soft hover:text-white"
+                  active ? "bg-lime text-white" : "text-gray-bodyDark hover:bg-ink-soft hover:text-white"
                 )}
               >
                 <Icon size={16} />

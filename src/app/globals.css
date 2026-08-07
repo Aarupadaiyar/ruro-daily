@@ -8,17 +8,17 @@
   }
 
   body {
-    @apply bg-cream text-ink font-sans antialiased;
+    @apply bg-cream text-white font-sans antialiased;
   }
 
   /* Trafy's subtle dotted-grid background used behind hero/section areas */
   .bg-dot-grid {
-    background-image: radial-gradient(circle, #D8D8CC 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
     background-size: 22px 22px;
   }
 
   ::selection {
-    @apply bg-lime text-ink;
+    @apply bg-lime text-white;
   }
 
   :focus-visible {
@@ -30,11 +30,11 @@
 @layer components {
   /* Pill eyebrow chip, e.g. "● WORK TECH FOR GLOBAL AI TALENT" */
   .eyebrow {
-    @apply inline-flex items-center gap-2 rounded-pill border border-border bg-white/60 px-4 py-1.5 text-xs font-medium uppercase tracking-wide text-ink;
+    @apply inline-flex items-center gap-2 rounded-pill border border-border bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-wide text-white;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-pill bg-lime px-6 py-3 text-sm font-semibold text-ink transition-colors hover:bg-lime-dim;
+    @apply inline-flex items-center justify-center rounded-pill bg-lime px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-lime-dim;
   }
 
   .btn-secondary {
@@ -42,11 +42,11 @@
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center rounded-pill border border-border bg-white px-6 py-3 text-sm font-semibold text-ink transition-colors hover:bg-cream-dim;
+    @apply inline-flex items-center justify-center rounded-pill border border-border bg-white px-6 py-3 text-sm font-semibold text-ink transition-colors hover:bg-white/90;
   }
 
   .card {
-    @apply rounded-card border border-border bg-white p-6 shadow-soft transition-shadow hover:shadow-soft-lg;
+    @apply rounded-card border border-border bg-white/5 p-6 shadow-soft transition-shadow hover:shadow-soft-lg;
   }
 
   .card-dark {

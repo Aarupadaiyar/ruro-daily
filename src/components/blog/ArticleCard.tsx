@@ -29,9 +29,9 @@ export function ArticleCard({ article }: { article: ArticleCardData }) {
         <Link href={`/intelligence/news/${article.slug}`}>
           <h3 className="text-lg font-bold leading-snug text-ink group-hover:underline">{article.title}</h3>
         </Link>
-        <p className="mt-2 line-clamp-2 text-sm text-gray-body">{article.summary}</p>
+        <p className="mt-2 line-clamp-2 text-sm text-ink/55">{article.summary}</p>
 
-        <div className="mt-4 flex items-center justify-between border-t border-border pt-4 text-xs text-gray-body">
+        <div className="mt-4 flex items-center justify-between border-t border-black/10 pt-4 text-xs text-ink/45">
           <span>{article.source.name} · {formatDate(article.publishedAt)}</span>
           <div className="flex items-center gap-3">
             <span>{article.readingTimeMins} min</span>

@@ -12,8 +12,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/admin/login");
   }
 
+  // Explicitly light rather than the (now dark) `bg-cream` token: the admin
+  // panel is an internal tool, out of scope for the public site's dark
+  // theme, and every text-ink heading/table in here assumes a light surface.
   return (
-    <div className="flex bg-cream">
+    <div className="flex bg-[#FAFAF0] text-[#0B0B0B]">
       <AdminSidebar />
       <div className="flex-1 overflow-y-auto p-8">{children}</div>
     </div>
