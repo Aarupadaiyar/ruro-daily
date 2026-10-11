@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
+import { SITE } from "@/lib/site";
 
 // Force dynamic rendering so Next.js never calls this during `next build`.
 // Without this, Next.js tries to statically generate the sitemap at build
@@ -11,7 +12,7 @@ import { db } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 const base =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://trafy.ai";
+    SITE.url;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Wrap in try/catch so a DB hiccup returns a minimal sitemap rather than a
@@ -30,12 +31,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     {
-      url: `${base}/intelligence`,
+      url: `${base}`,
       changeFrequency: "hourly",
       priority: 1,
     },
     ...articles.map((a) => ({
-      url: `${base}/intelligence/news/${a.slug}`,
+      url: `${base}/news/${a.slug}`,
       lastModified: a.updatedAt,
       changeFrequency: "daily" as const,
       priority: 0.7,

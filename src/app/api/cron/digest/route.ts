@@ -43,7 +43,7 @@ export async function sendDailyDigest() {
   });
 
   await resend.emails.send({
-    from: process.env.DIGEST_FROM_EMAIL ?? "digest@trafy.ai",
+    from: process.env.DIGEST_FROM_EMAIL ?? "digest@ruro.in",
     to: ADMIN_EMAILS, // admin-only, never public — see product brief
     subject: "Today's AI News Digest",
     html,

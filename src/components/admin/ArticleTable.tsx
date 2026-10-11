@@ -73,21 +73,21 @@ export function ArticleTable({ filters }: { filters: Record<string, string> }) {
               <td className="max-w-xs px-4 py-3 font-medium text-ink">{a.title}</td>
               <td className="px-4 py-3 text-gray-body">{a.source.name}</td>
               <td className="px-4 py-3"><Badge variant="outline">{a.category.name}</Badge></td>
-              <td className="px-4 py-3"><Badge variant={a.status === "PUBLISHED" ? "lime" : "outline"}>{a.status}</Badge></td>
+              <td className="px-4 py-3"><Badge variant={a.status === "PUBLISHED" ? "brand" : "outline"}>{a.status}</Badge></td>
               <td className="px-4 py-3 text-gray-body">{formatDate(a.publishedAt ?? a.scrapedAt)}</td>
               <td className="px-4 py-3">
                 <div className="flex items-center justify-end gap-1">
                   {a.status === "PENDING" && (
                     <>
-                      <button title="Approve" onClick={() => patch(a.id, { status: "APPROVED" })} className="rounded-pill p-1.5 hover:bg-lime/30"><Check size={15} /></button>
+                      <button title="Approve" onClick={() => patch(a.id, { status: "APPROVED" })} className="rounded-pill p-1.5 hover:bg-brand/30"><Check size={15} /></button>
                       <button title="Reject" onClick={() => patch(a.id, { status: "REJECTED" })} className="rounded-pill p-1.5 hover:bg-red-100"><X size={15} /></button>
                     </>
                   )}
                   {a.status === "APPROVED" && (
                     <Button size="sm" variant="primary" onClick={() => patch(a.id, { status: "PUBLISHED" })}>Publish</Button>
                   )}
-                  <button title="Feature" onClick={() => patch(a.id, { isFeatured: !a.isFeatured })} className={`rounded-pill p-1.5 hover:bg-lime/30 ${a.isFeatured ? "text-ink" : "text-gray-body"}`}><Star size={15} fill={a.isFeatured ? "currentColor" : "none"} /></button>
-                  <button title="Pin" onClick={() => patch(a.id, { isPinned: !a.isPinned })} className={`rounded-pill p-1.5 hover:bg-lime/30 ${a.isPinned ? "text-ink" : "text-gray-body"}`}><Pin size={15} fill={a.isPinned ? "currentColor" : "none"} /></button>
+                  <button title="Feature" onClick={() => patch(a.id, { isFeatured: !a.isFeatured })} className={`rounded-pill p-1.5 hover:bg-brand/30 ${a.isFeatured ? "text-ink" : "text-gray-body"}`}><Star size={15} fill={a.isFeatured ? "currentColor" : "none"} /></button>
+                  <button title="Pin" onClick={() => patch(a.id, { isPinned: !a.isPinned })} className={`rounded-pill p-1.5 hover:bg-brand/30 ${a.isPinned ? "text-ink" : "text-gray-body"}`}><Pin size={15} fill={a.isPinned ? "currentColor" : "none"} /></button>
                   <Link href={`/admin/articles/${a.id}/edit`} title="Edit" className="rounded-pill p-1.5 text-gray-body hover:bg-cream-dim"><Eye size={15} /></Link>
                   <button title="Delete" onClick={() => remove(a.id)} className="rounded-pill p-1.5 text-gray-body hover:bg-red-100 hover:text-red-600"><Trash2 size={15} /></button>
                 </div>

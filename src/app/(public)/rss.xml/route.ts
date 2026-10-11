@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { SITE } from "@/lib/site";
 
 // force-dynamic: never prerender at build time — the RSS feed must query
 // the live database. `revalidate = 600` caused Next.js to attempt a static
@@ -12,7 +13,7 @@ function escapeXml(str: string) {
 
 export async function GET() {
   const base =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://trafy.ai";
+    SITE.url;
 
   let articles: Awaited<ReturnType<typeof db.article.findMany<{ include: { category: true } }>>> = [];
   try {
@@ -31,8 +32,8 @@ export async function GET() {
       (a) => `
     <item>
       <title>${escapeXml(a.title)}</title>
-      <link>${base}/intelligence/news/${a.slug}</link>
-      <guid>${base}/intelligence/news/${a.slug}</guid>
+      <link>${base}/news/${a.slug}</link>
+      <guid>${base}/news/${a.slug}</guid>
       <pubDate>${(a.publishedAt ?? a.createdAt).toUTCString()}</pubDate>
       <category>${escapeXml(a.category.name)}</category>
       <description>${escapeXml(a.summary)}</description>
@@ -43,9 +44,9 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>Trafy Intelligence</title>
-    <link>${base}/intelligence</link>
-    <description>AI news and insights, curated daily by Trafy.</description>
+    <title>${SITE.name}</title>
+    <link>${base}</link>
+    <description>${SITE.tagline}</description>
     <language>en-us</language>
     ${items}
   </channel>

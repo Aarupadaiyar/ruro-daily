@@ -1,3 +1,4 @@
+import { BOT_USER_AGENT } from "@/lib/site";
 import * as cheerio from "cheerio";
 
 export interface ExtractedDetails {
@@ -9,7 +10,7 @@ export interface ExtractedDetails {
   thumbnailUrl?: string;
 }
 
-const UA = "TrafyIntelligenceBot/1.0 (+https://trafy.ai/intelligence)";
+const UA = BOT_USER_AGENT;
 
 // Exact strings that indicate the page returned junk content rather than an article.
 const JUNK_TITLE_FRAGMENTS = [

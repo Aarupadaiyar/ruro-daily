@@ -1,45 +1,37 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { Bookmark, Share2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatDate } from "@/lib/utils";
+import { ArticleCover } from "@/components/blog/ArticleCover";
+import { timeAgo } from "@/lib/utils";
 import type { ArticleCardData } from "@/types";
 
-export function ArticleCard({ article }: { article: ArticleCardData }) {
+export function ArticleCard({ article, showImage = true }: { article: ArticleCardData; showImage?: boolean }) {
   return (
-    <Card className="group flex flex-col overflow-hidden p-0">
-      <Link href={`/intelligence/news/${article.slug}`} className="relative block aspect-[16/10] overflow-hidden bg-cream-dim">
-        {article.thumbnailUrl ? (
-          <Image
-            src={article.thumbnailUrl}
-            alt={article.title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-gray-body">Trafy Intelligence</div>
-        )}
-        <Badge variant="lime" className="absolute left-4 top-4">{article.category.name}</Badge>
-      </Link>
+    <article className="group flex flex-col overflow-hidden rounded-card border border-border bg-paper transition-shadow hover:shadow-soft-lg">
+      {showImage && (
+        <Link href={`/news/${article.slug}`} className="relative block aspect-[16/9] overflow-hidden bg-cream-dim" tabIndex={-1} aria-hidden="true">
+          {article.thumbnailUrl ? (
+            <Image src={article.thumbnailUrl} alt="" fill className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+          ) : (
+            <ArticleCover id={article.id} pillar={article.pillar} categorySlug={article.category.slug} sourceSlug={article.source.slug} sourceName={article.source.name} />
+          )}
+        </Link>
+      )}
 
       <div className="flex flex-1 flex-col p-5">
-        <Link href={`/intelligence/news/${article.slug}`}>
-          <h3 className="text-lg font-bold leading-snug text-ink group-hover:underline">{article.title}</h3>
-        </Link>
-        <p className="mt-2 line-clamp-2 text-sm text-ink/55">{article.summary}</p>
-
-        <div className="mt-4 flex items-center justify-between border-t border-black/10 pt-4 text-xs text-ink/45">
-          <span>{article.source.name} · {formatDate(article.publishedAt)}</span>
-          <div className="flex items-center gap-3">
-            <span>{article.readingTimeMins} min</span>
-            <button aria-label="Bookmark" className="hover:text-ink"><Bookmark size={15} /></button>
-            <button aria-label="Share" className="hover:text-ink"><Share2 size={15} /></button>
-          </div>
+        <div>
+          <Badge variant={article.pillar}>{article.category.name}</Badge>
         </div>
+        <Link href={`/news/${article.slug}`} className="mt-3">
+          <h3 className="font-serif text-lg font-semibold leading-snug text-ink group-hover:underline group-hover:decoration-ink/30 group-hover:underline-offset-4">
+            {article.title}
+          </h3>
+        </Link>
+        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-body">{article.summary}</p>
+        <p className="mt-auto pt-4 text-xs text-gray-body">
+          {article.source.name} · <time dateTime={article.publishedAt}>{timeAgo(article.publishedAt)}</time> · {article.readingTimeMins} min
+        </p>
       </div>
-    </Card>
+    </article>
   );
 }

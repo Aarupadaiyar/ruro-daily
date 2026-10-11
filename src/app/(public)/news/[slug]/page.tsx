@@ -1,3 +1,4 @@
+import { SITE } from "@/lib/site";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,29 +9,9 @@ import { TableOfContents, type TocHeading } from "@/components/blog/TableOfConte
 import { ArticleCard } from "@/components/blog/ArticleCard";
 import { formatDate } from "@/lib/utils";
 import { db } from "@/lib/db";
-import type { ArticleCardData } from "@/types";
-
-const ARTICLE_INCLUDE = {
-  category: { select: { slug: true, name: true } },
-  source:   { select: { slug: true, name: true } },
-  author:   { select: { slug: true, name: true } },
-} as const;
-
-function toCardData(a: any): ArticleCardData {
-  return {
-    id:             a.id,
-    slug:           a.slug,
-    title:          a.title,
-    summary:        a.summary,
-    thumbnailUrl:   a.thumbnailUrl ?? null,
-    category:       a.category,
-    source:         a.source,
-    author:         a.author ?? null,
-    publishedAt:    (a.publishedAt ?? a.createdAt).toISOString(),
-    readingTimeMins: a.readingTimeMins,
-    popularityScore: a.popularityScore,
-  };
-}
+import { ARTICLE_INCLUDE, toCardData } from "@/lib/articles";
+import { pillarOf } from "@/lib/categories";
+import { usableThumbnail } from "@/lib/images";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -40,14 +21,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!article) return {};
 
   return {
-    title: `${article.title}: Trafy Intelligence`,
+    title: article.title,
     description: article.summary,
     openGraph: {
       title: article.title,
       description: article.summary,
       type: "article",
       publishedTime: (article.publishedAt ?? article.createdAt).toISOString(),
-      images: article.thumbnailUrl ? [article.thumbnailUrl] : [],
+      images: usableThumbnail(article.thumbnailUrl) ? [article.thumbnailUrl!] : [],
     },
     twitter: {
       card: "summary_large_image",
@@ -55,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: article.summary,
     },
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_MAIN_SITE_URL || "https://trafy.ai"}/intelligence/news/${article.slug}`,
+      canonical: `${SITE.url}/news/${article.slug}`,
     },
   };
 }
@@ -103,7 +84,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     description: article.summary,
     datePublished: (article.publishedAt ?? article.createdAt).toISOString(),
     author: article.author ? { "@type": "Person", name: article.author.name } : undefined,
-    publisher: { "@type": "Organization", name: "Trafy Intelligence" },
+    publisher: { "@type": "Organization", name: SITE.name, url: SITE.url },
   };
 
   return (
@@ -111,41 +92,41 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       {/* eslint-disable-next-line react/no-danger */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <header className="border-b border-border bg-dot-grid px-6 py-14 lg:px-10">
+      <header className="px-4 pb-8 pt-12 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-3xl">
-          <Badge variant="lime">{article.category.name}</Badge>
-          <h1 className="mt-5 text-display-md text-white">{article.title}</h1>
-          <p className="mt-4 text-lg text-gray-body">{article.summary}</p>
+          <Badge variant={pillarOf(article.category.slug)}>{article.category.name}</Badge>
+          <h1 className="mt-5 font-serif text-display-md text-ink">{article.title}</h1>
+          <p className="mt-4 font-serif text-xl leading-relaxed text-gray-body">{article.summary}</p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-gray-body">
-            <span className="font-medium text-white">{article.author?.name ?? article.source.name}</span>
+          <div className="mt-6 flex flex-wrap items-center gap-3 border-y border-border py-3 text-sm text-gray-body">
+            <span className="font-medium text-ink">{article.author?.name ?? article.source.name}</span>
             <span>·</span>
             <span>{formatDate(article.publishedAt ?? article.createdAt)}</span>
             <span>·</span>
             <span>{article.readingTimeMins} min read</span>
             <span>·</span>
-            <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white font-medium">Original source ↗</a>
+            <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-brand hover:underline">Read at {article.source.name} ↗</a>
           </div>
         </div>
       </header>
 
-      {article.thumbnailUrl && (
-        <div className="relative mx-auto -mt-8 aspect-[21/9] max-w-5xl overflow-hidden rounded-card border border-border">
-          <Image src={article.thumbnailUrl} alt={article.title} fill className="object-cover" />
+      {usableThumbnail(article.thumbnailUrl) && (
+        <div className="relative mx-auto aspect-[16/9] max-w-4xl overflow-hidden rounded-card bg-cream-dim">
+          <Image src={article.thumbnailUrl!} alt="" fill priority className="object-cover" />
         </div>
       )}
 
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 py-14 lg:grid-cols-[1fr_220px] lg:px-10">
-        <article className="prose prose-neutral max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-ink prose-a:underline">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,68ch)_220px] lg:justify-center lg:px-10">
+        <article className="article-body">
           <MDXRemote source={article.content} />
         </article>
         <TableOfContents headings={headings} />
       </div>
 
       {related.length > 0 && (
-        <section className="border-t border-border bg-cream-dim px-6 py-14 lg:px-10">
+        <section className="border-t border-border bg-cream-dim px-4 py-12 sm:px-6 lg:px-10">
           <div className="mx-auto max-w-6xl">
-            <h2 className="mb-6 text-display-sm text-white">Related</h2>
+            <h2 className="mb-6 font-serif text-display-sm text-ink">More on {article.category.name}</h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
               {related.map((r) => (
                 <ArticleCard key={r.id} article={r} />
@@ -155,8 +136,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </section>
       )}
 
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-10 text-sm lg:px-10">
-        <Link href="/intelligence" className="text-gray-body hover:text-white">← Back to all news</Link>
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-10 text-sm sm:px-6 lg:px-10">
+        <Link href="/" className="text-gray-body hover:text-ink">← Back to today&apos;s edition</Link>
       </nav>
     </main>
   );

@@ -4,7 +4,7 @@
 Vercel deploys from a Git repo — it doesn't take a raw zip upload.
 
 ```bash
-cd trafy-intelligence
+cd ruro-daily
 git init
 git add .
 git commit -m "Initial commit"
@@ -13,7 +13,7 @@ git commit -m "Initial commit"
 Create a new empty repo on GitHub (github.com/new — don't initialize it with a README), then:
 
 ```bash
-git remote add origin https://github.com/<your-username>/trafy-intelligence.git
+git remote add origin https://github.com/<your-username>/ruro-daily.git
 git branch -M main
 git push -u origin main
 ```
@@ -21,7 +21,7 @@ git push -u origin main
 ## 2. Import the project in Vercel
 
 1. Go to https://vercel.com → sign up free with your GitHub account (no card needed)
-2. **Add New** → **Project** → select the `trafy-intelligence` repo → **Import**
+2. **Add New** → **Project** → select the `ruro-daily` repo → **Import**
 3. Framework preset should auto-detect as **Next.js** — leave build settings as default
 
 Don't click Deploy yet — add the environment variables first (next step), otherwise the first build will fail with missing `DATABASE_URL` etc.

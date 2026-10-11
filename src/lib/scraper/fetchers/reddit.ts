@@ -1,3 +1,4 @@
+import { BOT_USER_AGENT } from "@/lib/site";
 import type { SourceConfig } from "../sources";
 import type { ScrapedArticle } from "@/lib/validations/article";
 
@@ -18,7 +19,7 @@ interface RedditPost {
 // use, but are rate-limited hard — one request per source per run is enough.
 export async function fetchRedditSource(source: SourceConfig): Promise<Partial<ScrapedArticle>[]> {
   const res = await fetch(source.feedUrl, {
-    headers: { "User-Agent": "TrafyIntelligenceBot/1.0 (+https://trafy.ai/intelligence)" },
+    headers: { "User-Agent": BOT_USER_AGENT },
   });
   if (!res.ok) throw new Error(`Reddit fetch failed for ${source.slug}: ${res.status}`);
 

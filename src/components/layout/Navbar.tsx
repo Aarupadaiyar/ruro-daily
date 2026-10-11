@@ -1,36 +1,31 @@
-import Image from "next/image";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { SearchBar } from "@/components/blog/SearchBar";
-
-// Guards against an empty-string env var too (`??` alone would not fall
-// back on ""), which previously could leave this link pointing at nothing.
-const MAIN_SITE = process.env.NEXT_PUBLIC_MAIN_SITE_URL || "https://trafy.ai";
+import { Logo } from "@/components/layout/Logo";
+import { NavLinks } from "@/components/layout/NavLinks";
+import { SITE } from "@/lib/site";
 
 export function Navbar() {
+  const today = new Intl.DateTimeFormat("en-IN", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Kolkata",
+  }).format(new Date());
+
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-cream/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
-        {/* Main Homepage redirecting to original landing page */}
-        <a href={MAIN_SITE} className="flex items-center">
-          <Image src="/trafy-logo-light.svg" alt="Trafy" width={80} height={49} className="h-8 w-auto" priority />
-        </a>
-
-        <nav className="hidden items-center gap-8 md:flex">
-          {/* Article Section */}
-          <Link href="/intelligence" className="font-semibold text-white">
-            Articles
-          </Link>
-          {/* Contact Section redirecting to main contact page */}
-          <a href={`${MAIN_SITE}/#contact`} className="text-gray-body hover:text-white">
-            Contact
-          </a>
-        </nav>
-
-        <div className="hidden items-center gap-3 lg:flex">
-          <div className="w-56">
-            <SearchBar compact />
-          </div>
+    <header className="sticky top-0 z-40 border-b border-border bg-cream/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10">
+        <Link href="/" aria-label={`${SITE.name} home`} className="shrink-0">
+          <Logo />
+        </Link>
+        <p className="hidden text-xs text-gray-body lg:block">{today} · Today&apos;s edition</p>
+        <div className="hidden w-72 md:block">
+          <SearchBar compact />
         </div>
+        <Link href="/search" aria-label="Search news" className="rounded-pill border border-border bg-paper p-2 text-ink/70 hover:text-ink md:hidden">
+          <Search size={18} aria-hidden="true" />
+        </Link>
+      </div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
+        <NavLinks />
       </div>
     </header>
   );

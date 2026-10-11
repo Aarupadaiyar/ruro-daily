@@ -1,24 +1,33 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter, Source_Serif_4 } from "next/font/google";
+import { SITE } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+// Headlines + article body: a screen-optimised serif that is easy on the eyes.
+const serif = Source_Serif_4({ subsets: ["latin"], variable: "--font-serif", weight: ["400", "600", "700"] });
+// Wordmark only: a classic Garamond to match the RURO logo.
+const logo = Cormorant_Garamond({ subsets: ["latin"], variable: "--font-logo", weight: ["600"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Trafy Intelligence: AI News & Insights",
-    template: "%s: Trafy Intelligence",
+    default: `${SITE.name}: ${SITE.tagline}`,
+    template: `%s · ${SITE.name}`,
   },
-  description: "The AI industry, tracked daily: model releases, funding, research, and open source, curated for builders.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://trafy.ai"),
+  description: SITE.description,
+  metadataBase: new URL(SITE.url),
+  applicationName: SITE.name,
   icons: {
-    icon: "/trafy-logo.svg",
+    icon: "/ruro-mark.svg",
+  },
+  alternates: {
+    types: { "application/rss+xml": `${SITE.url}/rss.xml` },
   },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${serif.variable} ${logo.variable}`}>
       <body>{children}</body>
     </html>
   );

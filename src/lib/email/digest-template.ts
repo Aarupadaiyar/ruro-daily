@@ -1,15 +1,12 @@
 import { tokens } from "@/styles/design-tokens";
 
-// This internal digest email intentionally stays light-themed with its own
-// hardcoded colors rather than following the site's dark theme tokens.
-// Email client dark-mode support is unreliable, and this keeps the digest
-// readable regardless of what the site's own palette does.
+// The email uses the same light "paper" palette as the site.
 const emailColor = {
-  bg: "#FAFAF0",
-  ink: "#0B0B0B",
-  accent: "#4C56E8",
-  grayBody: "#6B6B63",
-  border: "#E4E4D8",
+  bg: tokens.color.cream,
+  ink: tokens.color.ink,
+  accent: tokens.color.brand,
+  grayBody: tokens.color.grayBody,
+  border: tokens.color.border,
 };
 
 export interface DigestArticle {
@@ -57,8 +54,8 @@ export function renderDigestEmail(data: DigestData): string {
   <body style="margin:0;padding:0;background:${emailColor.bg};font-family:${tokens.font.family};">
     <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;padding:32px 20px;">
       <tr><td>
-        <div style="display:inline-block;background:${emailColor.accent};color:#fff;font-weight:700;padding:6px 14px;border-radius:${tokens.radius.pill};font-size:14px;">Trafy</div>
-        <h1 style="font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:20px 0 4px;color:${emailColor.ink};">Today's AI News Digest</h1>
+        <div style="display:inline-block;background:${emailColor.accent};color:#fff;font-weight:700;padding:6px 14px;border-radius:${tokens.radius.pill};font-size:14px;">Ruro Daily</div>
+        <h1 style="font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:20px 0 4px;color:${emailColor.ink};">Today&apos;s AI, Tech & Finance Digest</h1>
         <p style="color:${emailColor.grayBody};font-size:14px;margin:0 0 8px;">${data.date} · Internal — admin only</p>
       </td></tr>
       ${section("Top 10 News", data.topNews)}
@@ -71,7 +68,7 @@ export function renderDigestEmail(data: DigestData): string {
         <a href="${data.adminReviewUrl}" style="display:inline-block;background:${emailColor.ink};color:#fff;font-weight:600;font-size:14px;padding:12px 24px;border-radius:${tokens.radius.pill};text-decoration:none;">Review in admin panel →</a>
       </td></tr>
       <tr><td style="padding-top:32px;color:#A3A395;font-size:12px;">
-        Sent to Trafy admins only, generated automatically from the 7 AM scrape run.
+        Sent to Ruro Daily admins only, generated automatically from the 7 AM scrape run.
       </td></tr>
     </table>
   </body>

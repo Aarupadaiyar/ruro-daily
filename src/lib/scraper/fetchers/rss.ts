@@ -1,3 +1,4 @@
+import { BOT_USER_AGENT } from "@/lib/site";
 import Parser from "rss-parser";
 import * as cheerio from "cheerio";
 import type { SourceConfig } from "../sources";
@@ -5,12 +6,12 @@ import type { ScrapedArticle } from "@/lib/validations/article";
 
 const parser = new Parser({
   timeout: 15_000,
-  headers: { "User-Agent": "TrafyIntelligenceBot/1.0 (+https://trafy.ai/intelligence)" },
+  headers: { "User-Agent": BOT_USER_AGENT },
 });
 
 export async function fetchRssSource(source: SourceConfig): Promise<Partial<ScrapedArticle>[]> {
   const res = await fetch(source.feedUrl, {
-    headers: { "User-Agent": "TrafyIntelligenceBot/1.0 (+https://trafy.ai/intelligence)" },
+    headers: { "User-Agent": BOT_USER_AGENT },
   });
   if (!res.ok) throw new Error(`RSS fetch failed for ${source.slug}: ${res.status}`);
   let xmlText = await res.text();

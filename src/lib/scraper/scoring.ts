@@ -1,10 +1,22 @@
 import type { ScrapedArticle } from "@/lib/validations/article";
+import { getActiveSourceBySlug } from "./sources";
 
-const HIGH_SIGNAL_SOURCES = new Set(["openai", "anthropic", "deepmind", "meta-ai", "xai"]);
+const HIGH_SIGNAL_SOURCES = new Set([
+  // AI labs
+  "openai", "anthropic", "deepmind", "meta-ai", "google-ai",
+  // Finance primary sources and top-tier newsrooms
+  "rbi-press", "fed-press", "sec-press", "wsj-markets", "ft-markets", "economist-finance",
+]);
+
 const HIGH_SIGNAL_KEYWORDS = [
+  // AI / tech
   "launch", "release", "funding", "raises", "acquire", "acquisition",
   "state-of-the-art", "sota", "benchmark", "open-source", "open source",
   "gpt", "claude", "gemini", "llama",
+  // Finance
+  "rate cut", "rate hike", "repo rate", "interest rate", "inflation", "recession",
+  "record high", "record low", "crash", "ipo", "earnings", "gdp", "tariff",
+  "sensex", "nifty", "s&p 500", "nasdaq", "bitcoin",
 ];
 
 /**
@@ -17,6 +29,11 @@ export function computeImportanceScore(article: ScrapedArticle): number {
   let score = 30; // baseline
 
   if (HIGH_SIGNAL_SOURCES.has(article.sourceSlug)) score += 25;
+
+  // Commentary from individuals is valuable but rarely "the top story".
+  const kind = getActiveSourceBySlug(article.sourceSlug)?.kind;
+  if (kind === "OFFICIAL") score += 10;
+  if (kind === "INDIVIDUAL") score -= 5;
 
   const haystack = `${article.title} ${article.summary}`.toLowerCase();
   const keywordHits = HIGH_SIGNAL_KEYWORDS.filter((kw) => haystack.includes(kw)).length;

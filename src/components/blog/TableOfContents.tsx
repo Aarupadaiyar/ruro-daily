@@ -38,8 +38,8 @@ export function TableOfContents({ headings }: { headings: TocHeading[] }) {
             <a
               href={`#${h.id}`}
               className={cn(
-                "block text-gray-body hover:text-white",
-                activeId === h.id && "font-semibold text-white"
+                "block text-gray-body hover:text-ink",
+                activeId === h.id && "font-semibold text-ink"
               )}
             >
               {h.text}

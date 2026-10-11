@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { SITE } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://trafy.ai";
+  const base = SITE.url;
   return {
     rules: [
-      { userAgent: "*", allow: "/intelligence", disallow: "/admin" },
+      { userAgent: "*", allow: "/", disallow: "/admin" },
     ],
     sitemap: `${base}/sitemap.xml`,
   };

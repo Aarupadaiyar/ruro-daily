@@ -1,4 +1,4 @@
-# 🚀 How to Run Trafy Intelligence — Local Development Guide
+# 🚀 How to Run Ruro Daily — Local Development Guide
 
 > **Last updated:** 2026-07-04
 > **Stack:** Next.js 15 · React 19 · TypeScript · Prisma · PostgreSQL · NextAuth v5 · Tailwind CSS
@@ -40,8 +40,8 @@ Make sure the following are installed on your machine **before** proceeding:
 ## 2. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/trafyai.git
-cd trafyai
+git clone https://github.com/Aarupadaiyar/ruro-daily.git
+cd ruro-daily
 ```
 
 ---

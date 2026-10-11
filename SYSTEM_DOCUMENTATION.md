@@ -1,11 +1,11 @@
-# Trafy Intelligence System Documentation
+# Ruro Daily System Documentation
 
-This document describes the design, features, architecture, and backend systems powering the Trafy Intelligence web portal.
+This document describes the design, features, architecture, and backend systems powering the Ruro Daily web portal.
 
 ---
 
 ## 1. Core Functionality & Purpose
-Trafy Intelligence is an automated AI news and research aggregator. It collects model releases, funding rounds, research papers, and technology updates from around the web, presenting them in a curated feed.
+Ruro Daily is an automated AI news and research aggregator. It collects model releases, funding rounds, research papers, and technology updates from around the web, presenting them in a curated feed.
 
 ---
 

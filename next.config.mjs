@@ -9,6 +9,14 @@ const nextConfig = {
     unoptimized: true,
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
+  // The site used to live under /intelligence (Trafy Intelligence). Keep old
+  // links and search results working after the move to the root of daily.ruro.in.
+  async redirects() {
+    return [
+      { source: "/intelligence", destination: "/", permanent: true },
+      { source: "/intelligence/:path*", destination: "/:path*", permanent: true },
+    ];
+  },
   experimental: {
     mdxRs: true,
   },

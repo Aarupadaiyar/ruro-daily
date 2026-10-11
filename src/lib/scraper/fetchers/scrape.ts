@@ -1,8 +1,9 @@
+import { BOT_USER_AGENT } from "@/lib/site";
 import * as cheerio from "cheerio";
 import type { SourceConfig } from "../sources";
 import type { ScrapedArticle } from "@/lib/validations/article";
 
-const UA = "TrafyIntelligenceBot/1.0 (+https://trafy.ai/intelligence)";
+const UA = BOT_USER_AGENT;
 
 /**
  * Per-source selector configs.
