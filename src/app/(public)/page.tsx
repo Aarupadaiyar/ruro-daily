@@ -35,8 +35,14 @@ export default async function HomePage() {
       <main className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
         <h1 className="font-serif text-2xl font-semibold text-ink">Today&apos;s edition is on its way</h1>
         <p className="max-w-md text-gray-body">
-          Run <code className="rounded bg-cream-dim px-1 font-mono">npm run scrape:manual</code> to pull the latest stories, then reload.
+          We&apos;re gathering the latest stories. Please check back in a few minutes.
         </p>
+        {/* Setup hint for developers only — readers never see this. */}
+        {process.env.NODE_ENV === "development" && (
+          <p className="max-w-md text-sm text-gray-body">
+            Dev: check DATABASE_URL, then run <code className="rounded bg-cream-dim px-1 font-mono">npm run scrape:manual</code>.
+          </p>
+        )}
       </main>
     );
   }
