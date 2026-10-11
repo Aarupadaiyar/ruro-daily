@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { resend, ADMIN_EMAILS } from "@/lib/email/resend";
+import { getResend, ADMIN_EMAILS } from "@/lib/email/resend";
 import { renderDigestEmail, type DigestArticle } from "@/lib/email/digest-template";
 
 /**
@@ -12,6 +12,10 @@ import { renderDigestEmail, type DigestArticle } from "@/lib/email/digest-templa
 export async function sendDailyDigest() {
   if (ADMIN_EMAILS.length === 0) {
     return { sent: false, reason: "No ADMIN_EMAILS configured" };
+  }
+  const resend = getResend();
+  if (!resend) {
+    return { sent: false, reason: "No RESEND_API_KEY configured" };
   }
 
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
