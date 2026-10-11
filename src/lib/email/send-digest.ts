@@ -50,7 +50,7 @@ export async function sendDailyDigest() {
   await resend.emails.send({
     from: process.env.DIGEST_FROM_EMAIL ?? "digest@ruro.in",
     to:   ADMIN_EMAILS,
-    subject: "Today's AI News Digest",
+    subject: "Ruro Daily: today's AI, Tech & Finance digest",
     html,
   });
 
