@@ -26,6 +26,8 @@ export interface SourceConfig {
   maxItems?: number;
   /** Ignore items older than this many days. Defaults to 7 (30 for INDIVIDUAL). */
   maxAgeDays?: number;
+  /** Titles matching this are routine notices, not news — never stored or shown. */
+  exclude?: RegExp;
 }
 
 export const DEFAULT_MAX_ITEMS = 12;
@@ -148,7 +150,11 @@ export const SOURCES: SourceConfig[] = [
   // [BLOCKED] business-standard: 403
 
   // ── Official: regulators & central banks ─────────────────────────────────
-  rss("rbi-press",      "Reserve Bank of India","OFFICIAL","https://www.rbi.org.in/pressreleases_rss.xml",           "https://www.rbi.org.in",                  "policy", { region: "IN" }),
+  rss("rbi-press",      "Reserve Bank of India","OFFICIAL","https://www.rbi.org.in/pressreleases_rss.xml",           "https://www.rbi.org.in",                  "policy", {
+    region: "IN",
+    // Daily market-operations notices aren't news for readers.
+    exclude: /auction of state government securities|money market operations|result of|reserve money|treasury bills|variable rate (reverse )?repo|underwriting auction|lending rates of/i,
+  }),
   rss("fed-press",      "US Federal Reserve",  "OFFICIAL", "https://www.federalreserve.gov/feeds/press_all.xml",     "https://www.federalreserve.gov",          "policy", { region: "US", maxAgeDays: 14 }),
   rss("sec-press",      "US SEC",              "OFFICIAL", "https://www.sec.gov/news/pressreleases.rss",             "https://www.sec.gov",                     "policy", { region: "US", maxItems: 8 }),
 
@@ -235,7 +241,11 @@ export const SOURCES: SourceConfig[] = [
   rss("value-research",    "Value Research",        "OUTLET", "https://www.valueresearchonline.com/rss/",          "https://www.valueresearchonline.com",     "personal-finance", { region: "IN" }),
   rss("zerodha-zconnect",  "Zerodha Z-Connect",     "LAB",    "https://zerodha.com/z-connect/feed",                "https://zerodha.com/z-connect",           "personal-finance", { region: "IN", maxAgeDays: 30 }),
   // ── Finance: official ────────────────────────────────────────────────────
-  rss("sebi",              "SEBI",                  "OFFICIAL", "https://www.sebi.gov.in/sebirss.xml",             "https://www.sebi.gov.in",                 "policy", { region: "IN" }),
+  rss("sebi",              "SEBI",                  "OFFICIAL", "https://www.sebi.gov.in/sebirss.xml",             "https://www.sebi.gov.in",                 "policy", {
+    region: "IN", maxItems: 6,
+    // SEBI's feed is mostly case filings; keep press releases, circulars and consultations.
+    exclude: /appeal no|remittance|adjudication order|settlement order|recovery certificate|order in the matter|exemption order|corrigendum|notice of demand|summons|attachment/i,
+  }),
   rss("ecb-press",         "European Central Bank", "OFFICIAL", "https://www.ecb.europa.eu/rss/press.html",        "https://www.ecb.europa.eu",               "policy", { maxAgeDays: 14 }),
   rss("boe-news",          "Bank of England",       "OFFICIAL", "https://www.bankofengland.co.uk/rss/news",        "https://www.bankofengland.co.uk",         "policy", { region: "UK", maxItems: 8 }),
   // ── Finance: independent writers ─────────────────────────────────────────

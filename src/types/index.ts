@@ -16,6 +16,8 @@ export interface ArticleCardData {
   importanceScore: number;
   sourceUrl: string;
   clusterId: string | null;
+  /** Publisher region from the source config ("GLOBAL" when unspecified). */
+  region: "GLOBAL" | "US" | "IN" | "UK";
 }
 
 /** A top story condensed to a 1–2 sentence "bite". */
@@ -26,6 +28,8 @@ export interface Bite {
   /** How many outlets covered the same story (1 = only this one). */
   coverage: number;
   rank: number;
+  /** One line on why this story matters (rule-based), or null. */
+  why: string | null;
 }
 
 /** A finance story rewritten for beginners. */

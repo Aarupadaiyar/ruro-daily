@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BiteCard } from "@/components/bites/BiteCard";
 import { PillarTabs } from "@/components/bites/PillarTabs";
 import { getBites } from "@/lib/bites";
+import { getPrefs } from "@/lib/prefs-server";
 import { PILLARS, type PillarSlug } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,9 @@ export const metadata: Metadata = {
 export default async function BitesPage({ searchParams }: { searchParams: Promise<{ pillar?: string }> }) {
   const { pillar: raw } = await searchParams;
   const pillar = PILLARS.find((p) => p.slug === raw)?.slug as PillarSlug | undefined;
-  const bites = await getBites({ pillar, take: 30 });
+  const prefs = await getPrefs();
+  // An explicit tab wins over saved topics; region preference always applies.
+  const bites = await getBites({ pillar, take: 30, prefs: pillar ? { ...prefs, pillars: [pillar] } : prefs });
 
   return (
     <main className="px-4 py-10 sm:px-6 lg:px-10">

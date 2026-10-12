@@ -4,6 +4,7 @@ import { DEFAULT_MAX_ITEMS, SOURCES, maxAgeDaysFor, type SourceConfig } from "./
 import { classifyArticle } from "./classify";
 import { getCategory } from "@/lib/categories";
 import { usableThumbnail } from "@/lib/images";
+import { gistFromContent, headlineFromContent, isJunkTitle, isUsefulSummary } from "@/lib/gist";
 import { fetchRssSource } from "./fetchers/rss";
 import { fetchScrapeSource } from "./fetchers/scrape";
 import { fetchArxivSource } from "./fetchers/arxiv";
@@ -178,6 +179,7 @@ async function scrapeSource(sourceConfig: SourceConfig, force: boolean): Promise
     const cutoff = Date.now() - maxAgeDaysFor(sourceConfig) * 86_400_000;
     const rawItems = (await fetcher(sourceConfig))
       .filter((r) => !r.publishedAt || new Date(r.publishedAt).getTime() >= cutoff)
+      .filter((r) => !sourceConfig.exclude?.test(r.title ?? ""))
       .slice(0, sourceConfig.maxItems ?? DEFAULT_MAX_ITEMS);
     itemsFound = rawItems.length;
     console.log(`[${sourceConfig.slug}] fetched ${itemsFound} recent items`);
@@ -235,11 +237,23 @@ async function scrapeSource(sourceConfig: SourceConfig, force: boolean): Promise
         continue;
       }
 
+      // ── 4b. Real headline + gist ─────────────────────────────────────────
+      // Some feeds give the site name as the title or page chrome as the
+      // summary; rebuild both from the body, and skip items with no real text.
+      let title = extracted.title!;
+      if (isJunkTitle(title)) title = headlineFromContent(extracted.content);
+      const summary = isUsefulSummary(extracted.summary, title) ? extracted.summary! : gistFromContent(extracted.content, title);
+      if (!title || !summary) {
+        console.log(`  [SKIP] no real headline/summary for ${resolvedUrl}`);
+        itemsSkipped++;
+        continue;
+      }
+
       // ── 5. Validate with Zod schema ──────────────────────────────────────
       const parsed = scrapedArticleSchema.safeParse({
         ...raw,
-        title:           extracted.title,
-        summary:         extracted.summary!.slice(0, 590),
+        title,
+        summary:         summary.slice(0, 590),
         content:         extracted.content,
         sourceUrl:       resolvedUrl,
         thumbnailUrl:    usableThumbnail(extracted.thumbnailUrl) ?? undefined,

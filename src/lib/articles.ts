@@ -2,6 +2,8 @@ import { unstable_cache } from "next/cache";
 import { db } from "@/lib/db";
 import { categorySlugsForPillar, pillarOf, type PillarSlug } from "@/lib/categories";
 import { usableThumbnail } from "@/lib/images";
+import { gistFromContent, headlineFromContent, isJunkTitle, isUsefulSummary } from "@/lib/gist";
+import { getActiveSourceBySlug } from "@/lib/scraper/sources";
 import type { ArticleCardData } from "@/types";
 
 export const ARTICLE_INCLUDE = {
@@ -46,6 +48,7 @@ export function toCardData(a: any): ArticleCardData {
     importanceScore: a.importanceScore,
     sourceUrl:       a.sourceUrl,
     clusterId:       a.clusterId ?? null,
+    region:          getActiveSourceBySlug(a.source.slug)?.region ?? "GLOBAL",
   };
 }
 
@@ -54,6 +57,9 @@ interface ListOptions {
   categorySlugs?: string[];
   /** Only articles published in the last N hours. */
   sinceHours?: number;
+  /** Explicit published-at window (ISO strings), e.g. one day's edition. */
+  from?: string;
+  to?: string;
   orderBy?: "latest" | "importance";
   take?: number;
 }
@@ -78,15 +84,23 @@ const cachedList = unstable_cache(
           status: "PUBLISHED",
           ...(slugs ? { category: { slug: { in: slugs } } } : {}),
           ...(opts.sinceHours ? { publishedAt: { gte: new Date(Date.now() - opts.sinceHours * 3_600_000) } } : {}),
+          ...(opts.from || opts.to
+            ? { publishedAt: { ...(opts.from ? { gte: new Date(opts.from) } : {}), ...(opts.to ? { lt: new Date(opts.to) } : {}) } }
+            : {}),
         },
         orderBy:
           opts.orderBy === "importance"
             ? [{ importanceScore: "desc" }, { publishedAt: "desc" }]
             : { publishedAt: "desc" },
-        take: opts.take ?? 25,
+        // Over-fetch: routine notices are filtered out below.
+        take: Math.ceil((opts.take ?? 25) * 1.5),
         select: CARD_SELECT,
       });
-      return rows.map(toCardData);
+      const take = opts.take ?? 25;
+      const kept = await repairJunkTitles(rows.filter((r) => !isRoutineNotice(r.title, r.source.slug)));
+      const cards = kept.map(toCardData);
+      // One source can't flood a list (e.g. a regulator posting 11 notices at once).
+      return diversifySources(cards, Math.max(2, Math.ceil(take / 8))).slice(0, take);
     } catch (err) {
       console.error("[listArticles] DB query failed:", err);
       return [];
@@ -214,4 +228,67 @@ export function pickVaried<T>(ranked: T[], n: number): T[] {
     out.push(pool.splice(idx, 1)[0]!.item);
   }
   return out;
+}
+
+/** Every article in one story cluster (root + followers), oldest first. */
+export const getStoryTimeline = unstable_cache(
+  async (clusterId: string): Promise<ArticleCardData[]> => {
+    if (!/^[a-z0-9]{10,40}$/i.test(clusterId)) return [];
+    try {
+      const rows = await db.article.findMany({
+        where: { status: "PUBLISHED", OR: [{ id: clusterId }, { clusterId }] },
+        orderBy: { publishedAt: "asc" },
+        take: 50,
+        select: CARD_SELECT,
+      });
+      return rows.map(toCardData);
+    } catch (err) {
+      console.error("[getStoryTimeline] DB query failed:", err);
+      return [];
+    }
+  },
+  ["story-timeline"],
+  { revalidate: LIST_TTL_SECONDS, tags: [ARTICLES_TAG] }
+);
+
+/** Routine regulator notices (case filings, auction results) — not news. */
+function isRoutineNotice(title: string, sourceSlug: string): boolean {
+  return getActiveSourceBySlug(sourceSlug)?.exclude?.test(title) ?? false;
+}
+
+/**
+ * Re-order so no source appears more than `maxPerSource` times among the
+ * leading items; the overflow keeps its order and moves to the end.
+ */
+export function diversifySources<T extends { source: { slug: string } }>(items: T[], maxPerSource: number): T[] {
+  const counts = new Map<string, number>();
+  const head: T[] = [];
+  const overflow: T[] = [];
+  for (const item of items) {
+    const n = counts.get(item.source.slug) ?? 0;
+    (n < maxPerSource ? head : overflow).push(item);
+    counts.set(item.source.slug, n + 1);
+  }
+  return [...head, ...overflow];
+}
+
+/**
+ * Some feeds (RBI) title every item with the site name. Recover the real
+ * headline — and a real summary — from the body for just those rows; rows
+ * with no recoverable headline are dropped.
+ */
+async function repairJunkTitles<T extends { id: string; title: string; summary: string }>(rows: T[]): Promise<T[]> {
+  const junk = rows.filter((r) => isJunkTitle(r.title));
+  if (junk.length === 0) return rows;
+  const bodies = new Map(
+    (await db.article.findMany({ where: { id: { in: junk.map((r) => r.id) } }, select: { id: true, content: true } })).map((r) => [r.id, r.content])
+  );
+  return rows.flatMap((r) => {
+    if (!isJunkTitle(r.title)) return [r];
+    const body = bodies.get(r.id) ?? "";
+    const title = headlineFromContent(body);
+    if (!title) return [];
+    const summary = isUsefulSummary(r.summary, title) ? r.summary : gistFromContent(body, title) || r.summary;
+    return [{ ...r, title, summary }];
+  });
 }

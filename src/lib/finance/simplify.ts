@@ -1,5 +1,5 @@
 import { findTerms } from "./glossary";
-import { splitSentences } from "@/lib/bites";
+import { splitSentences } from "@/lib/text";
 import type { BeginnerBite, Bite } from "@/types";
 
 /**

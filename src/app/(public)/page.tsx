@@ -6,21 +6,24 @@ import { Top10Sidebar } from "@/components/blog/Top10Sidebar";
 import { Newsletter } from "@/components/blog/Newsletter";
 import { BitesStrip } from "@/components/bites/BitesStrip";
 import { ProHeadlineList } from "@/components/finance/ProHeadlineList";
-import { listArticles, pickVaried } from "@/lib/articles";
+import { diversifySources, listArticles, pickVaried } from "@/lib/articles";
 import { getBites } from "@/lib/bites";
 import { timeAgo } from "@/lib/utils";
+import { getPrefs } from "@/lib/prefs-server";
+import { PrefsPanel } from "@/components/prefs/PrefsPanel";
 
 // force-dynamic: render on every request so the build never tries to call
 // the database during `next build` (where DB connections are unreliable).
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  const prefs = await getPrefs();
   // Fetch deeper pools than we show, then sample from them per request so
   // every refresh surfaces a different mix of today's important stories.
   const [latest, top10, bitePool, aiPool, techPool, financePool] = await Promise.all([
     listArticles({ take: 40 }),
     listArticles({ orderBy: "importance", sinceHours: 48, take: 10 }),
-    getBites({ take: 24 }),
+    getBites({ take: 24, prefs }),
     listArticles({ pillar: "ai", orderBy: "importance", sinceHours: 168, take: 16 }),
     listArticles({ pillar: "tech", orderBy: "importance", sinceHours: 168, take: 16 }),
     listArticles({ pillar: "finance", orderBy: "importance", sinceHours: 168, take: 16 }),
@@ -71,11 +74,25 @@ export default async function HomePage() {
   const finance = pickVaried(unseen(financePool), 8);
   [...ai, ...tech].forEach((a) => shownIds.add(a.id));
   // Latest stays strictly newest-first — that's what "fresh" means to readers.
-  const rest = unseen(latest);
+  const rest = diversifySources(unseen(latest), 2);
 
   return (
     <main>
       <Hero article={lead} secondary={secondary} />
+
+      <section className="border-b border-border bg-brand-tint px-4 py-4 sm:px-6 lg:px-10">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-ink">
+            <span className="font-semibold">Short on time?</span> Today&apos;s edition: the 10 stories that matter, in about 5 minutes.
+          </p>
+          <div className="flex items-center gap-3">
+            <PrefsPanel initial={prefs} />
+            <Link href="/edition" className="rounded-pill bg-brand px-4 py-1.5 text-sm font-semibold text-brand-fg hover:bg-brand-dim">
+              Read today&apos;s edition →
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {rest.length > 0 && <HotNewsTicker items={rest.slice(0, 10).map((a) => ({ slug: a.slug, title: a.title }))} />}
 

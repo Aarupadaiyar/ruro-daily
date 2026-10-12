@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, timeAgo } from "@/lib/utils";
+import { clusterKey } from "@/lib/bites";
 import type { Bite } from "@/types";
 
 /** One bite: rank, headline, a 1–2 sentence summary and where it came from. */
@@ -15,9 +16,13 @@ export function BiteCard({ bite, compact = false }: { bite: Bite; compact?: bool
         </span>
         <Badge variant={article.pillar}>{article.category.name}</Badge>
         {bite.coverage > 1 && (
-          <span className="text-xs text-gray-body" title="Number of outlets reporting this story">
-            {bite.coverage} outlets
-          </span>
+          <Link
+            href={`/story/${clusterKey(article)}`}
+            className="text-xs text-gray-body underline decoration-border underline-offset-2 hover:text-ink"
+            title="See every report on this story"
+          >
+            {bite.coverage} reports
+          </Link>
         )}
       </div>
 
@@ -27,6 +32,12 @@ export function BiteCard({ bite, compact = false }: { bite: Bite; compact?: bool
         </Link>
       </h3>
       <p className={cn("mt-3 leading-relaxed text-ink/75", compact ? "line-clamp-3 text-sm" : "text-base")}>{bite.text}</p>
+      {!compact && bite.why && (
+        <p className="mt-3 border-l-2 border-brand/40 pl-3 text-sm leading-relaxed text-ink/70">
+          <span className="font-semibold text-brand">Why it matters: </span>
+          {bite.why}
+        </p>
+      )}
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-5 text-xs text-gray-body">
         <span className="truncate">

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Newspaper, Database, ScrollText, Mail, LogOut } from "lucide-react";
+import { LayoutDashboard, Newspaper, Database, ScrollText, Mail, Share2, LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/admin/sources", label: "Sources", icon: Database },
   { href: "/admin/logs", label: "Scrape Logs", icon: ScrollText },
   { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
+  { href: "/admin/share", label: "Share edition", icon: Share2 },
 ];
 
 export function AdminSidebar() {

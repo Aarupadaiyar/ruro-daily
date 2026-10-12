@@ -1,6 +1,15 @@
 {
-  "regions": ["sin1"],
+  "regions": [
+    "sin1"
+  ],
   "crons": [
-    { "path": "/api/cron/scrape?digest=true", "schedule": "0 7 * * *" }
+    {
+      "path": "/api/cron/scrape?digest=true",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/edition",
+      "schedule": "30 0 * * *"
+    }
   ]
 }

@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { Rss } from "lucide-react";
-import { Newsletter } from "@/components/blog/Newsletter";
+import { FollowLinks } from "@/components/edition/FollowLinks";
 import { Logo } from "@/components/layout/Logo";
 import { SOURCES } from "@/lib/scraper/sources";
 import { SITE } from "@/lib/site";
 
 const COLUMNS = [
-  { heading: "Read",    links: [["Top Stories", "/"], ["Bites", "/bites"], ["AI", "/ai"], ["Tech", "/tech"]] },
-  { heading: "Finance", links: [["Finance Pro", "/finance"], ["Finance for Beginners", "/finance/beginners"], ["Markets", "/category/markets"], ["Personal Finance", "/category/personal-finance"]] },
-  { heading: "About",   links: [["Our sources", "/sources"], ["RSS feed", "/rss.xml"], ["ruro.in", SITE.parentUrl]] },
+  { heading: "Read",    links: [["Today's Edition", "/edition"], ["Top Stories", "/"], ["Bites", "/bites"], ["AI", "/ai"], ["Tech", "/tech"]] },
+  { heading: "Finance", links: [["Finance Pro", "/finance"], ["Finance for Beginners", "/finance/beginners"], ["Markets", "/category/markets"], ["Weekly money quiz", "/finance/beginners/quiz"]] },
+  { heading: "About",   links: [["How we pick stories", "/about"], ["Our sources", "/sources"], ["RSS feed", "/rss.xml"], ["ruro.in", SITE.parentUrl]] },
 ] as const;
 
 export function Footer() {
@@ -19,9 +19,7 @@ export function Footer() {
         <p className="mx-auto mt-3 max-w-md text-gray-body">
           One short email each morning: the top AI, Tech and Finance stories in bites.
         </p>
-        <div className="mx-auto mt-6 max-w-md">
-          <Newsletter variant="inline" source="footer" />
-        </div>
+        <FollowLinks source="footer" />
       </div>
 
       <div className="px-4 py-12 sm:px-6 lg:px-10">
