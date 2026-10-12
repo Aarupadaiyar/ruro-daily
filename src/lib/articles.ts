@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { db } from "@/lib/db";
 import { categorySlugsForPillar, pillarOf, type PillarSlug } from "@/lib/categories";
 import { usableThumbnail } from "@/lib/images";
@@ -8,6 +9,24 @@ export const ARTICLE_INCLUDE = {
   source:   { select: { slug: true, name: true } },
   author:   { select: { slug: true, name: true } },
 } as const;
+
+/**
+ * Only the columns a card needs. Crucially this leaves out `content` (the full
+ * article body, often 10–50 KB each): list pages pull hundreds of rows, and
+ * shipping every body across the network was most of their load time.
+ */
+const CARD_SELECT = {
+  id: true, slug: true, title: true, summary: true, thumbnailUrl: true,
+  publishedAt: true, createdAt: true, readingTimeMins: true,
+  popularityScore: true, importanceScore: true, sourceUrl: true, clusterId: true,
+  ...ARTICLE_INCLUDE,
+} as const;
+
+/** Cache tag for every article list; revalidated after each scrape run. */
+export const ARTICLES_TAG = "articles";
+
+/** How long list results are shared between visitors before re-querying. */
+const LIST_TTL_SECONDS = 300;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function toCardData(a: any): ArticleCardData {
@@ -40,49 +59,69 @@ interface ListOptions {
 }
 
 /**
- * The one query every public page goes through. Never throws: a DB hiccup
- * logs and returns [] so pages render their empty state instead of a 500.
+ * The one query every public page goes through. Results are cached for a few
+ * minutes and shared across visitors (pages still re-pick from these pools on
+ * every request, so refreshes stay varied). Never throws: a DB hiccup logs and
+ * returns [] so pages render their empty state instead of a 500.
  */
-export async function listArticles(opts: ListOptions = {}): Promise<ArticleCardData[]> {
-  const slugs = opts.categorySlugs ?? (opts.pillar ? categorySlugsForPillar(opts.pillar) : undefined);
-  try {
-    const rows = await db.article.findMany({
-      where: {
-        status: "PUBLISHED",
-        ...(slugs ? { category: { slug: { in: slugs } } } : {}),
-        ...(opts.sinceHours ? { publishedAt: { gte: new Date(Date.now() - opts.sinceHours * 3_600_000) } } : {}),
-      },
-      orderBy:
-        opts.orderBy === "importance"
-          ? [{ importanceScore: "desc" }, { publishedAt: "desc" }]
-          : { publishedAt: "desc" },
-      take: opts.take ?? 25,
-      include: ARTICLE_INCLUDE,
-    });
-    return rows.map(toCardData);
-  } catch (err) {
-    console.error("[listArticles] DB query failed:", err);
-    return [];
-  }
+export function listArticles(opts: ListOptions = {}): Promise<ArticleCardData[]> {
+  return cachedList(JSON.stringify(opts));
 }
+
+const cachedList = unstable_cache(
+  async (key: string): Promise<ArticleCardData[]> => {
+    const opts = JSON.parse(key) as ListOptions;
+    const slugs = opts.categorySlugs ?? (opts.pillar ? categorySlugsForPillar(opts.pillar) : undefined);
+    try {
+      const rows = await db.article.findMany({
+        where: {
+          status: "PUBLISHED",
+          ...(slugs ? { category: { slug: { in: slugs } } } : {}),
+          ...(opts.sinceHours ? { publishedAt: { gte: new Date(Date.now() - opts.sinceHours * 3_600_000) } } : {}),
+        },
+        orderBy:
+          opts.orderBy === "importance"
+            ? [{ importanceScore: "desc" }, { publishedAt: "desc" }]
+            : { publishedAt: "desc" },
+        take: opts.take ?? 25,
+        select: CARD_SELECT,
+      });
+      return rows.map(toCardData);
+    } catch (err) {
+      console.error("[listArticles] DB query failed:", err);
+      return [];
+    }
+  },
+  ["list-articles"],
+  { revalidate: LIST_TTL_SECONDS, tags: [ARTICLES_TAG] }
+);
 
 /** clusterId → number of articles in that cluster (same story, many outlets). */
 export async function clusterSizes(clusterIds: string[]): Promise<Map<string, number>> {
-  const ids = [...new Set(clusterIds.filter(Boolean))];
+  const ids = [...new Set(clusterIds.filter(Boolean))].sort();
   if (ids.length === 0) return new Map();
-  try {
-    const groups = await db.article.groupBy({
-      by: ["clusterId"],
-      where: { clusterId: { in: ids }, status: "PUBLISHED" },
-      _count: { _all: true },
-    });
-    // +1: the cluster's root article carries no clusterId of its own.
-    return new Map(groups.map((g) => [g.clusterId as string, g._count._all + 1]));
-  } catch (err) {
-    console.error("[clusterSizes] DB query failed:", err);
-    return new Map();
-  }
+  // Cached as entries: the cache stores JSON, and a Map doesn't serialise.
+  return new Map(await cachedClusterSizes(ids));
 }
+
+const cachedClusterSizes = unstable_cache(
+  async (ids: string[]): Promise<[string, number][]> => {
+    try {
+      const groups = await db.article.groupBy({
+        by: ["clusterId"],
+        where: { clusterId: { in: ids }, status: "PUBLISHED" },
+        _count: { _all: true },
+      });
+      // +1: the cluster's root article carries no clusterId of its own.
+      return groups.map((g) => [g.clusterId as string, g._count._all + 1]);
+    } catch (err) {
+      console.error("[clusterSizes] DB query failed:", err);
+      return [];
+    }
+  },
+  ["cluster-sizes"],
+  { revalidate: LIST_TTL_SECONDS, tags: [ARTICLES_TAG] }
+);
 
 /**
  * Strip trailing publisher tags some feeds append to headlines,
@@ -103,7 +142,17 @@ export function cleanTitle(title: string, sourceName?: string): string {
  * title, summary, source or category; results are ranked by where the words
  * hit (title > summary) with a recency boost, so fresh, on-topic stories lead.
  */
-export async function searchArticles(query: string, opts: { pillar?: PillarSlug; take?: number } = {}): Promise<ArticleCardData[]> {
+export function searchArticles(query: string, opts: { pillar?: PillarSlug; take?: number } = {}): Promise<ArticleCardData[]> {
+  return cachedSearch(query.trim().toLowerCase(), opts.pillar ?? null, opts.take ?? 30);
+}
+
+const cachedSearch = unstable_cache(
+  (query: string, pillar: PillarSlug | null, take: number) => runSearch(query, { pillar: pillar ?? undefined, take }),
+  ["search-articles"],
+  { revalidate: 120, tags: [ARTICLES_TAG] }
+);
+
+async function runSearch(query: string, opts: { pillar?: PillarSlug; take?: number }): Promise<ArticleCardData[]> {
   const words = query.toLowerCase().split(/\s+/).map((w) => w.trim()).filter((w) => w.length >= 2).slice(0, 6);
   if (words.length === 0) return [];
   const take = opts.take ?? 30;
@@ -124,7 +173,7 @@ export async function searchArticles(query: string, opts: { pillar?: PillarSlug;
       },
       orderBy: { publishedAt: "desc" },
       take: take * 3,
-      include: ARTICLE_INCLUDE,
+      select: CARD_SELECT,
     });
 
     const now = Date.now();

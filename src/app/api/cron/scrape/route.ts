@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { runFullScrape } from "@/lib/scraper";
+import { ARTICLES_TAG } from "@/lib/articles";
 import { sendDailyDigest } from "@/lib/email/send-digest";
 
 // Configured in vercel.json as a backup daily job:
@@ -20,6 +22,7 @@ export async function GET(req: NextRequest) {
   }
 
   const summaries = await runFullScrape();
+  revalidateTag(ARTICLES_TAG); // show new stories now, not when the 5-min cache expires
   const failed = summaries.filter((s) => s.status === "FAILED");
 
   // Only send the daily digest if specifically requested via ?digest=true

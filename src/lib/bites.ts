@@ -16,11 +16,9 @@ import type { ArticleCardData, Bite } from "@/types";
 export async function getBites(opts: { pillar?: PillarSlug; take?: number; categorySlugs?: string[] } = {}): Promise<Bite[]> {
   const take = opts.take ?? 20;
 
-  // Prefer the last 36h; widen to a week on quiet days so the feed is never empty.
-  let pool = await listArticles({ pillar: opts.pillar, categorySlugs: opts.categorySlugs, sinceHours: 36, take: 300 });
-  if (pool.length < take) {
-    pool = await listArticles({ pillar: opts.pillar, categorySlugs: opts.categorySlugs, sinceHours: 24 * 7, take: 300 });
-  }
+  // One query over the past week, newest first; the freshness term below makes
+  // the last 36h dominate, while quiet days still have enough to fill the feed.
+  const pool = await listArticles({ pillar: opts.pillar, categorySlugs: opts.categorySlugs, sinceHours: 24 * 7, take: 160 });
   if (pool.length === 0) return [];
 
   const sizes = await clusterSizes(pool.map(clusterKey));

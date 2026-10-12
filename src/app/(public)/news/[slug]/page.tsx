@@ -9,15 +9,19 @@ import { TableOfContents, type TocHeading } from "@/components/blog/TableOfConte
 import { ArticleCard } from "@/components/blog/ArticleCard";
 import { formatDate } from "@/lib/utils";
 import { db } from "@/lib/db";
-import { ARTICLE_INCLUDE, toCardData } from "@/lib/articles";
+import { cache } from "react";
+import { ARTICLE_INCLUDE, listArticles } from "@/lib/articles";
 import { pillarOf } from "@/lib/categories";
 import { usableThumbnail } from "@/lib/images";
 
+// Deduped per request: generateMetadata and the page share one DB round trip.
+const getArticle = cache((slug: string) =>
+  db.article.findUnique({ where: { slug, status: "PUBLISHED" }, include: ARTICLE_INCLUDE })
+);
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const article = await db.article.findUnique({
-    where: { slug, status: "PUBLISHED" },
-  });
+  const article = await getArticle(slug);
   if (!article) return {};
 
   return {
@@ -55,27 +59,16 @@ function extractHeadings(mdx: string): TocHeading[] {
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = await db.article.findUnique({
-    where: { slug, status: "PUBLISHED" },
-    include: ARTICLE_INCLUDE,
-  });
-  
+  const article = await getArticle(slug);
+
   if (!article) notFound();
 
   const headings = extractHeadings(article.content);
   
-  const relatedRaw = await db.article.findMany({
-    where: {
-      categoryId: article.categoryId,
-      id: { not: article.id },
-      status: "PUBLISHED",
-    },
-    orderBy: { publishedAt: "desc" },
-    take: 3,
-    include: ARTICLE_INCLUDE,
-  });
-
-  const related = relatedRaw.map(toCardData);
+  // Cached list query (no article bodies) instead of a fresh findMany per view.
+  const related = (await listArticles({ categorySlugs: [article.category.slug], take: 4 }))
+    .filter((a) => a.id !== article.id)
+    .slice(0, 3);
 
   const jsonLd = {
     "@context": "https://schema.org",
